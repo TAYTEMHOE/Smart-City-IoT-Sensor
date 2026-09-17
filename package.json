@@ -1,0 +1,20 @@
+{
+  "name": "smart-city-dashboard",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Smart City IoT Sensor Monitoring Dashboard — MQTT simulator, NestJS ingestion/API, React dashboard",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "simulator"
+  ],
+  "scripts": {
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:simulator": "npm run dev --workspace=simulator",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:simulator": "npm run build --workspace=simulator",
+    "build": "npm run build:backend && npm run build:frontend && npm run build:simulator"
+  }
+}
