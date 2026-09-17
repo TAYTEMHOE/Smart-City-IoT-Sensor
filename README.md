@@ -115,8 +115,11 @@ curl "http://localhost:3000/readings?sensorType=temperature&limit=10"
 | `humidity` | 10 % | 90 % |
 | `air_quality` | — | 150 AQI |
 
-These are defined by the simulator's spike ranges for now; the backend's own threshold
-config (F6) will be the source of truth once alerting is implemented.
+Source of truth: [`backend/src/alerts/config/thresholds.config.ts`](backend/src/alerts/config/thresholds.config.ts).
+A reading strictly outside its bounds (`value > max` or `value < min`; exact boundary
+values do **not** count) gets an `Alert` document and `isAlert: true` on the `Reading`.
+The simulator's spike ranges (above) are set to land outside these same bounds so
+alerting has something to react to during a demo.
 
 ## Assumptions
 
