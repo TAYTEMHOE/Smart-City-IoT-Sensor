@@ -21,12 +21,28 @@ smart-city-dashboard/
 
 ## Setup
 
-> TODO: fill in once the broker, backend, frontend, and simulator are runnable end to end.
-
-1. **Broker & database** — `docker compose up` (TODO: document ports / config)
+1. **Broker & database** — `docker compose up -d` (see [MQTT broker](#mqtt-broker) below)
 2. **Backend** — `cp backend/.env.example backend/.env` then `npm run dev:backend`
 3. **Frontend** — `cp frontend/.env.example frontend/.env` then `npm run dev:frontend`
 4. **Simulator** — `cp simulator/.env.example simulator/.env` then `npm run dev:simulator`
+
+## MQTT broker
+
+`docker compose up -d` starts a Mosquitto broker (`eclipse-mosquitto:2`) reachable at
+**`mqtt://localhost:1883`**, using the config committed at
+[`backend/docker/mosquitto/mosquitto.conf`](backend/docker/mosquitto/mosquitto.conf).
+
+- **Auth: none.** `allow_anonymous true` — this is a local dev/test setup only, not a
+  production configuration.
+- Data and logs persist in the `mosquitto-data` / `mosquitto-log` named Docker volumes.
+- `docker compose up -d` also starts MongoDB, reachable at `mongodb://localhost:27017`.
+
+To verify the broker is up, subscribe and publish from two terminals:
+
+```bash
+docker compose exec mosquitto mosquitto_sub -h localhost -t "smartcity/sensors/+/reading"
+docker compose exec mosquitto mosquitto_pub -h localhost -t "smartcity/sensors/temp-01/reading" -m '{"sensorId":"temp-01","value":21.5}'
+```
 
 ## MQTT payload schema
 
