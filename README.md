@@ -44,13 +44,50 @@ docker compose exec mosquitto mosquitto_sub -h localhost -t "smartcity/sensors/+
 docker compose exec mosquitto mosquitto_pub -h localhost -t "smartcity/sensors/temp-01/reading" -m '{"sensorId":"temp-01","value":21.5}'
 ```
 
+## Sensor simulator
+
+`npm run dev:simulator` publishes readings for 3 sensors, one per type, each on its own
+timer:
+
+| Sensor ID | Type | Unit |
+|---|---|---|
+| `temp-01` | `temperature` | `°C` |
+| `humidity-01` | `humidity` | `%` |
+| `air-01` | `air_quality` | `AQI` |
+
+Each sensor mostly publishes values in a normal range, with a ~12% chance per tick of
+publishing an out-of-threshold spike (see [Alert thresholds](#alert-thresholds) below),
+so alerting has something to react to during a demo.
+
+Configurable via `simulator/.env` (copy from `simulator/.env.example`):
+
+- `MQTT_BROKER_URL` — defaults to `mqtt://localhost:1883`
+- `PUBLISH_INTERVAL_MS` — defaults to `3000`
+
 ## MQTT payload schema
 
-> TODO: document the `smartcity/sensors/{sensorId}/reading` payload shape.
+Topic: `smartcity/sensors/{sensorId}/reading`
+
+```json
+{
+  "sensorId": "temp-01",
+  "sensorType": "temperature",
+  "value": 42.7,
+  "unit": "°C",
+  "timestamp": "2026-09-15T09:12:00.000Z"
+}
+```
 
 ## Alert thresholds
 
-> TODO: document per-sensor-type thresholds and rationale.
+| Sensor type | Min | Max |
+|---|---|---|
+| `temperature` | -10 °C | 40 °C |
+| `humidity` | 10 % | 90 % |
+| `air_quality` | — | 150 AQI |
+
+These are defined by the simulator's spike ranges for now; the backend's own threshold
+config (F6) will be the source of truth once alerting is implemented.
 
 ## Assumptions
 
