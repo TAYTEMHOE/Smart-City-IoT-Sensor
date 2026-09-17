@@ -107,6 +107,28 @@ Response:
 curl "http://localhost:3000/readings?sensorType=temperature&limit=10"
 ```
 
+### `GET /alerts`
+
+Query params (all optional, same Zod-validated 400-on-invalid behavior):
+
+| Param | Type | Notes |
+|---|---|---|
+| `sensorId` | string | exact match |
+| `from` / `to` | ISO datetime | filters on `triggeredAt` |
+| `acknowledged` | `"true"` \| `"false"` | exact filter; omit to see both |
+
+Response:
+
+```json
+{
+  "data": [ /* Alert documents, newest first */ ]
+}
+```
+
+```bash
+curl "http://localhost:3000/alerts?sensorId=temp-01"
+```
+
 ## Alert thresholds
 
 | Sensor type | Min | Max |

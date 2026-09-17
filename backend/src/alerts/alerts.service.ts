@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, type QueryFilter } from 'mongoose';
 import { Alert, type AlertDirection, type AlertDocument } from '../database/schemas/alert.schema.js';
 import type { ReadingDocument } from '../database/schemas/reading.schema.js';
 import { THRESHOLDS } from './config/thresholds.config.js';
+import type { QueryAlertsDto } from './dto/query-alerts.schema.js';
 
 @Injectable()
 export class AlertsService {
@@ -47,5 +48,24 @@ export class AlertsService {
       this.logger.error(`Failed to create alert for reading ${reading._id}: ${(err as Error).message}`);
       throw err;
     }
+  }
+
+  async query(filters: QueryAlertsDto): Promise<AlertDocument[]> {
+    const mongoFilter: QueryFilter<AlertDocument> = {};
+
+    if (filters.sensorId) {
+      mongoFilter.sensorId = filters.sensorId;
+    }
+    if (filters.acknowledged !== undefined) {
+      mongoFilter.acknowledged = filters.acknowledged;
+    }
+    if (filters.from || filters.to) {
+      mongoFilter.triggeredAt = {
+        ...(filters.from && { $gte: new Date(filters.from) }),
+        ...(filters.to && { $lte: new Date(filters.to) }),
+      };
+    }
+
+    return this.alertModel.find(mongoFilter).sort({ triggeredAt: -1 }).exec();
   }
 }
