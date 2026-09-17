@@ -2,25 +2,32 @@ import { Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { MQTT_TOPICS } from '../common/constants/mqtt-topics.constant.js';
 import { MqttService } from '../mqtt/mqtt.service.js';
 import { mqttReadingPayloadSchema } from '../readings/dto/mqtt-reading-payload.schema.js';
+import { ReadingsService } from '../readings/readings.service.js';
 
 /**
  * Orchestrates the ingestion pipeline: validate -> persist -> evaluate.
  * Contains no persistence/alerting logic itself — that's delegated to
- * ReadingsService/AlertsService once those exist (F4/F6).
+ * ReadingsService/AlertsService (constructor-injected) so this stays a thin
+ * orchestrator and each stage is independently unit-testable.
  */
 @Injectable()
 export class IngestionService implements OnModuleInit {
   private readonly logger = new Logger(IngestionService.name);
 
-  constructor(private readonly mqttService: MqttService) {}
+  constructor(
+    private readonly mqttService: MqttService,
+    private readonly readingsService: ReadingsService,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     await this.mqttService.subscribe(MQTT_TOPICS.READING_WILDCARD);
-    this.mqttService.onMessage((topic, payload) => this.handleMessage(topic, payload));
+    this.mqttService.onMessage((topic, payload) => {
+      void this.handleMessage(topic, payload);
+    });
     this.logger.log(`Subscribed to ${MQTT_TOPICS.READING_WILDCARD}`);
   }
 
-  private handleMessage(topic: string, payload: Buffer): void {
+  private async handleMessage(topic: string, payload: Buffer): Promise<void> {
     let json: unknown;
     try {
       json = JSON.parse(payload.toString());
@@ -35,8 +42,14 @@ export class IngestionService implements OnModuleInit {
       return;
     }
 
-    // F4 will persist this via ReadingsService; ingestion ends here for now.
     const reading = result.data;
-    this.logger.log(`Validated reading ${reading.sensorId}=${reading.value}${reading.unit}`);
+    try {
+      await this.readingsService.create(reading);
+      this.logger.log(`Persisted reading ${reading.sensorId}=${reading.value}${reading.unit}`);
+    } catch {
+      // ReadingsService already logs the underlying error; this just keeps
+      // one bad write from taking down the ingestion loop for other messages.
+      this.logger.warn(`Reading from ${topic} was validated but not persisted`);
+    }
   }
 }
