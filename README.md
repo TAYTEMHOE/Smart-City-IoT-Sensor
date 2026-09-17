@@ -28,7 +28,7 @@ smart-city-dashboard/
 
 ## MQTT broker
 
-`docker compose up -d` starts a Mosquitto broker (`eclipse-mosquitto:2`) reachable at
+`docker compose up -d` starts a Mosquitto broker (`eclipse-mosquitto:latest`) reachable at
 **`mqtt://localhost:1883`**, using the config committed at
 [`backend/docker/mosquitto/mosquitto.conf`](backend/docker/mosquitto/mosquitto.conf).
 
@@ -76,6 +76,35 @@ Topic: `smartcity/sensors/{sensorId}/reading`
   "unit": "°C",
   "timestamp": "2026-09-15T09:12:00.000Z"
 }
+```
+
+## REST API
+
+### `GET /readings`
+
+Query params (all optional, validated with Zod — invalid values return `400` with a
+per-field error message):
+
+| Param | Type | Notes |
+|---|---|---|
+| `sensorId` | string | exact match |
+| `sensorType` | `temperature` \| `humidity` \| `air_quality` | |
+| `from` / `to` | ISO datetime | filters on `timestamp` |
+| `onlyAlerts` | `"true"` \| `"false"` | only `"true"` narrows results |
+| `limit` | number | default `100`, max `500` |
+| `page` | number | default `1` |
+
+Response:
+
+```json
+{
+  "data": [ /* Reading documents, newest first */ ],
+  "meta": { "total": 0, "page": 1, "limit": 100 }
+}
+```
+
+```bash
+curl "http://localhost:3000/readings?sensorType=temperature&limit=10"
 ```
 
 ## Alert thresholds

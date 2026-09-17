@@ -7,6 +7,7 @@ import { validate } from './config/env.validation.js';
 import { DatabaseModule } from './database/database.module.js';
 import { IngestionModule } from './ingestion/ingestion.module.js';
 import { MqttModule } from './mqtt/mqtt.module.js';
+import { ReadingsModule } from './readings/readings.module.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MqttModule } from './mqtt/mqtt.module.js';
     DatabaseModule,
     MqttModule,
     IngestionModule,
+    ReadingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
