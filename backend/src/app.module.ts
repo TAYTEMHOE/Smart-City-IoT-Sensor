@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AlertsModule } from './alerts/alerts.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import configuration from './config/configuration.js';
@@ -20,6 +21,7 @@ import { ReadingsModule } from './readings/readings.module.js';
     MqttModule,
     IngestionModule,
     ReadingsModule,
+    AlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
