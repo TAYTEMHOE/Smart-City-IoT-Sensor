@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
+/** Shared refresh cadence for readings and alerts — F9 requires alerts to
+ *  update on the same polling cycle as readings. */
+export const POLL_INTERVAL_MS = 5000;
+
 export interface PollingState<T> {
   data: T | undefined;
   error: Error | undefined;

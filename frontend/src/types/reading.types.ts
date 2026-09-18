@@ -10,3 +10,17 @@ export interface Reading {
   receivedAt: string;
   isAlert: boolean;
 }
+
+export type AlertDirection = 'above' | 'below';
+
+export interface Alert {
+  _id: string;
+  readingId: string;
+  sensorId: string;
+  sensorType: SensorType;
+  value: number;
+  threshold: number;
+  direction: AlertDirection;
+  triggeredAt: string;
+  acknowledged: boolean;
+}
