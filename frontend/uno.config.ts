@@ -1,10 +1,21 @@
-import { defineConfig, presetWind3 } from 'unocss';
+import { defineConfig, presetAttributify, presetIcons, presetUno } from 'unocss';
 
 export default defineConfig({
-  presets: [presetWind3()],
+  presets: [
+    presetUno(),
+    presetAttributify(),
+    presetIcons({
+      scale: 1.2,
+      extraProperties: {
+        display: 'inline-block',
+        'vertical-align': 'middle',
+      },
+    }),
+  ],
   theme: {
     colors: {
-      alert: '#dc2626',
+      alert: '#ef4444',
+      surface: '#ffffff',
     },
   },
 });

@@ -1,46 +1,83 @@
-import type { Reading } from '../../types/reading.types.js';
+import type { Reading, SensorType } from '../../types/reading.types.js';
 import { formatDate } from '../../utils/formatDate.js';
 
 interface ReadingsTableProps {
   readings: Reading[];
 }
 
+const SENSOR_TYPE_BADGE: Record<SensorType, string> = {
+  temperature: 'i-lucide-thermometer bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400',
+  humidity: 'i-lucide-droplet bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+  air_quality: 'i-lucide-wind bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400',
+};
+
+function SensorTypeBadge({ sensorType }: { sensorType: SensorType }) {
+  const classes = SENSOR_TYPE_BADGE[sensorType];
+  const [icon, ...colors] = classes.split(' ');
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${colors.join(' ')}`}
+    >
+      <span className={icon} />
+      {sensorType}
+    </span>
+  );
+}
+
 export function ReadingsTable({ readings }: ReadingsTableProps) {
   if (readings.length === 0) {
-    return <p className="p-6 text-center text-sm text-gray-500">No readings match the current filters.</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-gray-900">
+        <span className="i-lucide-inbox text-3xl text-gray-300 dark:text-gray-700" />
+        <p className="text-sm text-gray-500 dark:text-gray-400">No readings match the current filters.</p>
+      </div>
+    );
   }
 
   return (
-    <table className="w-full border-collapse text-sm">
-      <thead>
-        <tr className="border-b border-gray-200 text-left text-gray-500">
-          <th className="px-3 py-2 font-medium">Sensor</th>
-          <th className="px-3 py-2 font-medium">Type</th>
-          <th className="px-3 py-2 font-medium">Value</th>
-          <th className="px-3 py-2 font-medium">Timestamp</th>
-        </tr>
-      </thead>
-      <tbody>
-        {readings.map((reading) => (
-          <tr
-            key={reading._id}
-            className={
-              reading.isAlert
-                ? 'border-b border-gray-100 bg-red-50 font-medium text-red-700'
-                : 'border-b border-gray-100 text-gray-800'
-            }
-          >
-            <td className="px-3 py-2">{reading.sensorId}</td>
-            <td className="px-3 py-2">{reading.sensorType}</td>
-            <td className="px-3 py-2">
-              {reading.value}
-              {reading.unit}
-              {reading.isAlert && <span className="ml-2 text-xs uppercase">⚠ alert</span>}
-            </td>
-            <td className="px-3 py-2">{formatDate(reading.timestamp)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-400">
+              <th className="px-4 py-3 font-medium">Sensor</th>
+              <th className="px-4 py-3 font-medium">Type</th>
+              <th className="px-4 py-3 font-medium">Value</th>
+              <th className="px-4 py-3 font-medium">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {readings.map((reading, index) => (
+              <tr
+                key={reading._id}
+                className={
+                  reading.isAlert
+                    ? 'border-l-4 border-l-red-400 border-b border-b-gray-100 bg-red-50/50 dark:border-b-gray-800 dark:bg-red-950/20'
+                    : `border-b border-gray-100 dark:border-gray-800 ${index % 2 === 1 ? 'bg-gray-50/60 dark:bg-gray-800/20' : ''}`
+                }
+              >
+                <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{reading.sensorId}</td>
+                <td className="px-4 py-3">
+                  <SensorTypeBadge sensorType={reading.sensorType} />
+                </td>
+                <td className="px-4 py-3">
+                  <span className={reading.isAlert ? 'font-semibold text-red-700 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}>
+                    {reading.value}
+                    {reading.unit}
+                  </span>
+                  {reading.isAlert && (
+                    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-700 dark:bg-red-900/40 dark:text-red-400">
+                      <span className="i-lucide-triangle-alert text-xs" />
+                      Alert
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{formatDate(reading.timestamp)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
