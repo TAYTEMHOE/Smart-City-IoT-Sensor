@@ -36,7 +36,7 @@ export function AlertsPanel({ alerts }: AlertsPanelProps) {
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100">
           <span className="i-lucide-bell-ring text-red-500" />
-          Recent Alerts
+          Recent Alerts (24h)
           {alerts.length > 0 && (
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-semibold text-white">
               {alerts.length}
@@ -63,7 +63,7 @@ export function AlertsPanel({ alerts }: AlertsPanelProps) {
           <p className="text-sm text-gray-500 dark:text-gray-400">No active alerts.</p>
         </div>
       ) : (
-        <div role="list" className="flex list-none flex-col gap-2.5 overflow-y-auto p-0">
+        <div role="list" className="flex min-h-0 flex-1 list-none flex-col gap-2.5 overflow-y-auto p-0">
           {sortedAlerts.map((alert) => {
             const style = DIRECTION_STYLE[alert.direction];
             return (

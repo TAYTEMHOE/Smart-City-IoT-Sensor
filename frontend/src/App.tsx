@@ -3,14 +3,26 @@ import type { ReadingsFilters } from './api/readings.api.js';
 import { AlertsPanel } from './components/AlertsPanel/AlertsPanel.js';
 import { ErrorCard } from './components/common/ErrorCard.js';
 import { DashboardLayout, type ConnectionStatus } from './components/layout/DashboardLayout.js';
+import { ReadingsChart } from './components/ReadingsChart/ReadingsChart.js';
 import { ReadingsTable } from './components/ReadingsTable/ReadingsTable.js';
 import { SensorFilterBar } from './components/SensorFilterBar/SensorFilterBar.js';
+import { MetricsCards } from './components/SummaryMetrics/MetricsCards.js';
 import { useAlerts } from './hooks/useAlerts.js';
-import { useReadings } from './hooks/useReadings.js';
+import { READINGS_TABLE_LIMIT, useReadings } from './hooks/useReadings.js';
 
 function App() {
   const [filters, setFilters] = useState<ReadingsFilters>({});
   const { data, error, isLoading, refetch } = useReadings(filters);
+
+  // KPIs/health should reflect the operator's scope (sensorId/sensorType/time range)
+  // but not the table-only "Only Alerts" display toggle.
+  const kpiFilters = useMemo(
+    () => ({ sensorId: filters.sensorId, sensorType: filters.sensorType, from: filters.from, to: filters.to }),
+    [filters.sensorId, filters.sensorType, filters.from, filters.to],
+  );
+  // Cheap query (limit: 1) just to read meta.total for the alerting-reading count across
+  // the full filtered dataset, independent of the table's own onlyAlerts toggle/page cap.
+  const { data: alertingHealthData } = useReadings({ ...kpiFilters, onlyAlerts: true, limit: 1 });
 
   // Default the alerts panel to the last 24h unless the user picked an explicit "from".
   // Lazy useState initializer so the impure Date.now() read happens exactly once, on mount.
@@ -26,9 +38,27 @@ function App() {
   const connectionStatus: ConnectionStatus =
     error || alertsError ? 'disconnected' : isLoading && !data ? 'connecting' : 'connected';
 
+  const activeSensors = useMemo(() => new Set((data?.data ?? []).map((r) => r.sensorId)).size, [data]);
+  const totalReadings = data?.meta.total ?? 0;
+  const alertingTotal = alertingHealthData?.meta.total ?? 0;
+  const healthPercent = data
+    ? totalReadings === 0
+      ? 100
+      : ((totalReadings - alertingTotal) / totalReadings) * 100
+    : null;
+
   return (
     <DashboardLayout
       connectionStatus={connectionStatus}
+      metrics={
+        <MetricsCards
+          activeSensors={activeSensors}
+          totalReadings={totalReadings}
+          alertsCount24h={alertsData?.data.length ?? 0}
+          healthPercent={healthPercent}
+        />
+      }
+      chart={<ReadingsChart readings={data?.data ?? []} forcedType={filters.sensorType} />}
       filterBar={<SensorFilterBar filters={filters} onChange={setFilters} />}
       table={
         <>
@@ -44,7 +74,9 @@ function App() {
               <ReadingsTable readings={data?.data ?? []} />
               {data && (
                 <p className="mt-2 px-1 text-xs text-gray-400 dark:text-gray-500">
-                  Showing {data.data.length} of {data.meta.total} readings
+                  {data.data.length >= READINGS_TABLE_LIMIT
+                    ? `Displaying latest ${READINGS_TABLE_LIMIT} records (filtered from ${data.meta.total.toLocaleString()} total)`
+                    : `Displaying ${data.data.length} of ${data.meta.total.toLocaleString()} records`}
                 </p>
               )}
             </>

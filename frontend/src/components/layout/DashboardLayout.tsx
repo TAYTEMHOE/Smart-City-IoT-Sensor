@@ -23,12 +23,21 @@ const STATUS_CONFIG: Record<ConnectionStatus, { label: string; dot: string; pill
 
 interface DashboardLayoutProps {
   connectionStatus: ConnectionStatus;
+  metrics: ReactNode;
+  chart: ReactNode;
   filterBar: ReactNode;
   table: ReactNode;
   alertsPanel: ReactNode;
 }
 
-export function DashboardLayout({ connectionStatus, filterBar, table, alertsPanel }: DashboardLayoutProps) {
+export function DashboardLayout({
+  connectionStatus,
+  metrics,
+  chart,
+  filterBar,
+  table,
+  alertsPanel,
+}: DashboardLayoutProps) {
   const status = STATUS_CONFIG[connectionStatus];
 
   return (
@@ -56,11 +65,20 @@ export function DashboardLayout({ connectionStatus, filterBar, table, alertsPane
       </header>
 
       <main className="mx-auto flex max-w-[1400px] flex-col gap-6 px-6 py-6">
-        {filterBar}
+        {metrics}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
-          <div className="lg:col-span-7">{table}</div>
-          <div className="lg:col-span-3">{alertsPanel}</div>
+        {chart}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-10 lg:items-start">
+          <div className="flex flex-col gap-4 lg:col-span-7">
+            {filterBar}
+            {table}
+          </div>
+          {/* Sticky + fixed height (not max-height) so h-full below resolves to a real,
+              bounded size the alert list can actually scroll within — grid stretch alone
+              can't do this, since an `auto` row's height is dictated by whichever sibling's
+              unclipped content is tallest, which is exactly the bug this replaces. */}
+          <div className="lg:sticky lg:top-6 lg:col-span-3 lg:h-[calc(100vh-3rem)]">{alertsPanel}</div>
         </div>
       </main>
     </div>
