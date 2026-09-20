@@ -27,7 +27,7 @@ function SensorTypeBadge({ sensorType }: { sensorType: SensorType }) {
 export function ReadingsTable({ readings }: ReadingsTableProps) {
   if (readings.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-gray-900">
         <span className="i-lucide-inbox text-3xl text-gray-300 dark:text-gray-700" />
         <p className="text-sm text-gray-500 dark:text-gray-400">No readings match the current filters.</p>
       </div>
@@ -35,25 +35,33 @@ export function ReadingsTable({ readings }: ReadingsTableProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-400">
-              <th className="px-4 py-3 font-medium">Sensor</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Value</th>
-              <th className="px-4 py-3 font-medium">Timestamp</th>
+            <tr className="border-b border-slate-200 bg-slate-50 text-left dark:border-gray-800 dark:bg-gray-800/50">
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
+                Sensor
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
+                Type
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
+                Value
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
+                Timestamp
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {readings.map((reading, index) => (
+          <tbody className="divide-y divide-slate-200 dark:divide-gray-800">
+            {readings.map((reading) => (
               <tr
                 key={reading._id}
                 className={
                   reading.isAlert
-                    ? 'border-l-4 border-l-red-400 border-b border-b-gray-100 bg-red-50/50 dark:border-b-gray-800 dark:bg-red-950/20'
-                    : `border-b border-gray-100 dark:border-gray-800 ${index % 2 === 1 ? 'bg-gray-50/60 dark:bg-gray-800/20' : ''}`
+                    ? 'border-l-4 border-l-red-500 bg-red-50/60 transition-colors hover:bg-red-50 dark:bg-red-950/20 dark:hover:bg-red-950/30'
+                    : 'transition-colors hover:bg-slate-50/70 dark:hover:bg-gray-800/40'
                 }
               >
                 <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{reading.sensorId}</td>
@@ -61,7 +69,13 @@ export function ReadingsTable({ readings }: ReadingsTableProps) {
                   <SensorTypeBadge sensorType={reading.sensorType} />
                 </td>
                 <td className="px-4 py-3">
-                  <span className={reading.isAlert ? 'font-semibold text-red-700 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}>
+                  <span
+                    className={
+                      reading.isAlert
+                        ? 'font-semibold text-red-700 dark:text-red-400'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }
+                  >
                     {reading.value}
                     {reading.unit}
                   </span>
