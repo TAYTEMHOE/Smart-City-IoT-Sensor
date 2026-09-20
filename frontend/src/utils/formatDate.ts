@@ -3,6 +3,11 @@ export function formatDate(iso: string): string {
   return new Date(iso).toLocaleString();
 }
 
+/** Formats a UTC ISO timestamp as a short local time (for compact chart axes). */
+export function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
 /** Converts a UTC ISO timestamp to a value usable in a `datetime-local` input. */
 export function toDatetimeLocalValue(iso: string): string {
   const date = new Date(iso);

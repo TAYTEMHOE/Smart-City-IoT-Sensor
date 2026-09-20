@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-is": "^19.3.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.134",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
