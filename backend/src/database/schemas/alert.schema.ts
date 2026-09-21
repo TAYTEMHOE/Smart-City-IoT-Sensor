@@ -15,7 +15,7 @@ export class Alert {
   @Prop({ required: true, index: true })
   sensorId: string;
 
-  @Prop({ required: true, enum: SENSOR_TYPES })
+  @Prop({ type: String, required: true, enum: SENSOR_TYPES })
   sensorType: SensorType;
 
   @Prop({ required: true })
@@ -24,7 +24,7 @@ export class Alert {
   @Prop({ required: true })
   threshold: number;
 
-  @Prop({ required: true, enum: ALERT_DIRECTIONS })
+  @Prop({ type: String, required: true, enum: ALERT_DIRECTIONS })
   direction: AlertDirection;
 
   @Prop({ required: true, index: true })

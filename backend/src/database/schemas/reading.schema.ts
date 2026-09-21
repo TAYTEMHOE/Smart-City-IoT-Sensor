@@ -9,7 +9,7 @@ export class Reading {
   @Prop({ required: true, index: true })
   sensorId: string;
 
-  @Prop({ required: true, enum: SENSOR_TYPES, index: true })
+  @Prop({ type: String, required: true, enum: SENSOR_TYPES, index: true })
   sensorType: SensorType;
 
   @Prop({ required: true })
